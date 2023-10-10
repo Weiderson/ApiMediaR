@@ -85,30 +85,32 @@ namespace Viabilidade.Service.Services.Alert
         public async Task<PaginationModel<EntityRuleGroupByRuleDto>> GroupByRuleAsync(int ruleId, EntityRuleQueryParams queryParams)
         {
             var data = await _regraEntidadeRepository.GroupByRuleAsync(ruleId, queryParams);
-            foreach (var entityRule in data)
-            {
-                entityRule.Item1.UserName = await _userService.GetUserNameAsync(entityRule.Item1.UserId);
-                //Calculo de Aderencia
-                /*var ruleApplicant = await RuleEntityApplicant(entityRule.Item1.Id, entityRule.Item1.AlertsQuantity, entityRule.Item1.TreatmentsQuantity, entityRule.Item1.PercentageTreatment, entityRule.Item1.RuleLastChange);
-                entityRule.Item1.RuleApplicant = ruleApplicant.Item1;
-                entityRule.Item1.RuleApplicantDescription = ruleApplicant.Item2;*/
-            }
-               
+            if (data.Any())
+                await Parallel.ForEachAsync(data, new ParallelOptions() { MaxDegreeOfParallelism = data.Count() }, async (entityRule, ct) =>
+                {
+                    entityRule.Item1.UserName = await _userService.GetUserNameAsync(entityRule.Item1.UserId);
+                    //Calculo de Aderencia
+                    /*var ruleApplicant = await RuleEntityApplicant(entityRule.Item1.Id, entityRule.Item1.AlertsQuantity, entityRule.Item1.TreatmentsQuantity, entityRule.Item1.PercentageTreatment, entityRule.Item1.RuleLastChange);
+                    entityRule.Item1.RuleApplicant = ruleApplicant.Item1;
+                    entityRule.Item1.RuleApplicantDescription = ruleApplicant.Item2;*/
+                });
             return new PaginationModel<EntityRuleGroupByRuleDto>(data.Select(c => c.Item2).FirstOrDefault(), queryParams.Page, queryParams.TotalPage, data.Select(c => c.Item1).ToList());
         }
 
         public async Task<PaginationModel<EntityRuleGroupByEntityDto>> GroupByEntityAsync(int entityId, EntityRuleQueryParams queryParams)
         {
             var data = await _regraEntidadeRepository.GroupByEntityAsync(entityId, queryParams);
-            foreach (var entityRule in data)
-            {
-                entityRule.Item1.UserName = await _userService.GetUserNameAsync(entityRule.Item1.UserId);
-                //Calculo de Aderencia
-                /*var ruleApplicant = await RuleEntityApplicant(entityRule.Item1.Id, entityRule.Item1.AlertsQuantity, entityRule.Item1.TreatmentsQuantity, entityRule.Item1.PercentageTreatment, entityRule.Item1.RuleLastChange);
-                entityRule.Item1.RuleApplicant = ruleApplicant.Item1;
-                entityRule.Item1.RuleApplicantDescription = ruleApplicant.Item2;*/
-            }
-              
+
+            if (data.Any())
+                await Parallel.ForEachAsync(data, new ParallelOptions() { MaxDegreeOfParallelism = data.Count() }, async (entityRule, ct) =>
+                {
+                    entityRule.Item1.UserName = await _userService.GetUserNameAsync(entityRule.Item1.UserId);
+                    //Calculo de Aderencia
+                    /*var ruleApplicant = await RuleEntityApplicant(entityRule.Item1.Id, entityRule.Item1.AlertsQuantity, entityRule.Item1.TreatmentsQuantity, entityRule.Item1.PercentageTreatment, entityRule.Item1.RuleLastChange);
+                    entityRule.Item1.RuleApplicant = ruleApplicant.Item1;
+                    entityRule.Item1.RuleApplicantDescription = ruleApplicant.Item2;*/
+                });
+
             return new PaginationModel<EntityRuleGroupByEntityDto>(data.Select(c => c.Item2).FirstOrDefault(), queryParams.Page, queryParams.TotalPage, data.Select(c => c.Item1).ToList());
         }
 

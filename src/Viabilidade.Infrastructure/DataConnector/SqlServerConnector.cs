@@ -10,6 +10,7 @@ namespace Viabilidade.Infrastructure.DataConnector
         {
             dbConnection = SqlClientFactory.Instance.CreateConnection();
             dbConnection.ConnectionString = connectionString;
+            dbConnection.Open();
         }
 
         public IDbConnection dbConnection { get; }
